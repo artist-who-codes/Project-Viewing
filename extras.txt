@@ -1,0 +1,29 @@
+
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import type { NextApiRequest, NextApiResponse } from 'next'
+
+const uri = process.env.MONGO_URI as string
+console.log("connected");
+export async function handler(req: NextApiRequest, res: NextApiResponse) {
+    console.log("connected");
+    try {
+        const client = new MongoClient(uri, {
+            serverApi: {
+                version: ServerApiVersion.v1,
+                strict: true,
+                deprecationErrors: true,
+            }
+        });
+        await client.connect();
+        console.log("connected");
+        const database = client.db(process.env.DATABASE_NAME);
+        const Projects = database.collection('Projects');
+        const data = await Projects.find().toArray();
+        res.status(200).json({ data: data })
+        return (data)
+    }
+    catch (error) {
+        res.status(404).json({ error })
+    }
+}
+
